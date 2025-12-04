@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JCV ICE Login</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#fff;
+    margin:0;
+    padding:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.container{
+    width:90%;
+    max-width:400px;
+}
+h2{
+    text-align:center;
+    color:#003A8C;
+}
+input{
+    width:100%;
+    padding:12px;
+    border:2px solid #003A8C;
+    border-radius:5px;
+    margin-top:8px;
+}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:20px;
+    background:#003A8C;
+    color:white;
+    border:none;
+    border-radius:5px;
+    font-size:18px;
+}
+.link{
+    text-align:center;
+    margin-top:12px;
+}
+.link a{
+    color:#003A8C;
+    cursor:pointer;
+    font-weight:bold;
+}
+.hidden{
+    display:none;
+}
+.error{
+    color:red;
+    text-align:center;
+    margin-top:10px;
+}
+.success{
+    color:green;
+    text-align:center;
+    margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LOGIN -->
+    <div id="loginPage">
+        <h2>JCV ICE</h2>
+
+        <label>User Name (Mobile Number)</label>
+        <input type="text" id="loginMobile">
+
+        <label>Password</label>
+        <input type="password" id="loginPassword">
+
+        <button onclick="login()">Login</button>
+
+        <!-- LOGIN error message -->
+        <p id="loginError"></p>
+
+        <div class="link">
+            <a onclick="showSignup()">Sign Up</a> |
+            <a onclick="showForget()">Forget Password</a>
+        </div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupPage" class="hidden">
+        <h2>Sign Up</h2>
+
+        <label>Full Name</label>
+        <input type="text" id="fullName">
+
+        <label>Mobile Number</label>
+        <input type="text" id="mobile">
+
+        <label>Password</label>
+        <input type="password" id="password">
+
+        <button onclick="submitSignup()">Sign Up</button>
+
+        <p id="signupError"></p>
+
+        <div class="link">
+            <a onclick="showLogin()">Login</a>
+        </div>
+    </div>
+
+    <!-- FORGET PASSWORD -->
+    <div id="forgetPage" class="hidden">
+        <h2>Recover Password</h2>
+
+        <label>Mobile Number</label>
+        <input type="text" id="forgetMobile">
+
+        <button onclick="recoverPassword()">Get Password</button>
+
+        <p id="forgetMsg"></p>
+
+        <div class="link">
+            <a onclick="showLogin()">Login</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ---------------------------------
+const GOOGLE_FORM_URL = "YOUR_GOOGLE_FORM_formResponse_URL";
+const GOOGLE_SHEET_CSV = "YOUR_PUBLISHED_GOOGLE_SHEET_CSV_LINK";
+// ---------------------------------
+
+function showSignup(){
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("signupPage").classList.remove("hidden");
+    document.getElementById("forgetPage").classList.add("hidden");
+}
+
+function showLogin(){
+    document.getElementById("signupPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
+    document.getElementById("forgetPage").classList.add("hidden");
+}
+
+function showForget(){
+    document.getElementById("signupPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("forgetPage").classList.remove("hidden");
+}
+
+
+// ---------------- SIGN UP ----------------
+function submitSignup(){
+    let name = fullName.value.trim();
+    let mobile = mobile.value.trim();
+    let password = document.getElementById("password").value.trim();
+    let msg = document.getElementById("signupError");
+
+    msg.className = "";
+    msg.innerHTML = "";
+
+    if(name=="" || mobile=="" || password==""){
+        msg.className = "error";
+        msg.innerHTML = "All fields are required";
+        return;
+    }
+
+    let fd = new FormData();
+    fd.append("entry.1111111111", name);
+    fd.append("entry.2222222222", mobile);
+    fd.append("entry.3333333333", password);
+
+    fetch(GOOGLE_FORM_URL, {
+        method: "POST",
+        body: fd,
+        mode: "no-cors"
+    });
+
+    msg.className = "success";
+    msg.innerHTML = "Sign Up Successful! You can login now.";
+
+    setTimeout(() => showLogin(), 1000);
+}
+
+
+// ---------------- LOGIN ----------------
+function login(){
+    let mobile = loginMobile.value.trim();
+    let password = loginPassword.value.trim();
+    let msg = document.getElementById("loginError");
+
+    msg.className = "";
+    msg.innerHTML = "";
+
+    if(mobile=="" || password==""){
+        msg.className = "error";
+        msg.innerHTML = "Please enter mobile & password";
+        return;
+    }
+
+    fetch(GOOGLE_SHEET_CSV)
+    .then(r => r.text())
+    .then(data => {
+        let rows = data.split("\n");
+        let ok = false;
+
+        for(let i=1; i<rows.length; i++){
+            let c = rows[i].split(",");
+
+            if(c[1] == mobile && c[2] == password){
+                ok = true;
+                break;
+            }
+        }
+
+        if(ok){
+            msg.className = "success";
+            msg.innerHTML = "Login Successful! Redirecting...";
+            setTimeout(()=> window.location.href="dashboard.html", 800);
+        } else {
+            msg.className = "error";
+            msg.innerHTML = "Invalid mobile number or password";
+        }
+    });
+}
+
+
+// ---------------- FORGET PASSWORD ----------------
+function recoverPassword(){
+    let mobile = forgetMobile.value.trim();
+    let msg = document.getElementById("forgetMsg");
+
+    msg.className = "";
+    msg.innerHTML = "";
+
+    if(mobile==""){
+        msg.className = "error";
+        msg.innerHTML = "Enter your registered mobile number";
+        return;
+    }
+
+    fetch(GOOGLE_SHEET_CSV)
+    .then(r => r.text())
+    .then(data => {
+        let found = false;
+        let rows = data.split("\n");
+
+        for(let i=1; i<rows.length; i++){
+            let c = rows[i].split(",");
+
+            if(c[1] == mobile){
+                found = c[2];
+                break;
+            }
+        }
+
+        if(found){
+            msg.className = "success";
+            msg.innerHTML = "Your Password: <b>" + found + "</b>";
+        } else {
+            msg.className = "error";
+            msg.innerHTML = "Mobile number not found";
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
