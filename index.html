@@ -132,8 +132,8 @@ button{
 
 <script>
 // ---------------------------------
-const GOOGLE_FORM_URL = "YOUR_GOOGLE_FORM_formResponse_URL";
-const GOOGLE_SHEET_CSV = "YOUR_PUBLISHED_GOOGLE_SHEET_CSV_LINK";
+const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeexauHTanHsKiMdVLV2FRkkda2jKrEe7eDEHiLjX88Wj-A1Q/viewform?usp=publish-editor";
+const GOOGLE_SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiGsoxXafIhGNN_4fYm20d3kx3BJ43N3VzCBqL2zmkR5gV2ug5POW8VLbyaEIg3YGclvXsYozVBZ78/pub?output=csv";
 // ---------------------------------
 
 function showSignup(){
@@ -172,9 +172,9 @@ function submitSignup(){
     }
 
     let fd = new FormData();
-    fd.append("entry.1111111111", name);
-    fd.append("entry.2222222222", mobile);
-    fd.append("entry.3333333333", password);
+    fd.append("entry.813264251", name);
+    fd.append("entry.1071536003", mobile);
+    fd.append("entry.1735509789", password);
 
     fetch(GOOGLE_FORM_URL, {
         method: "POST",
